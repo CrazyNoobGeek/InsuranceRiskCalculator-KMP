@@ -1,35 +1,60 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# 🛡️ Insurance Risk Simulator (KMP POC)
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Un module de tarification d'assurance cross-platform développé avec **Kotlin Multiplatform (KMP)**.
+Ce projet démontre une architecture robuste permettant de partager 100% de la logique métier entre Android et iOS.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## 🚀 Stack Technique
 
-### Build and Run Android Application
+* **Langage :** Kotlin
+* **Architecture :** Clean Architecture (Domain / Presentation / UI)
+* **UI :** Compose Multiplatform (Material 3)
+* **Qualité :** Tests Unitaires : Kotlin Test (Common)
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+## 🏗️ Architecture & Choix Techniques
 
-### Build and Run iOS Application
+### 1. KMP & Clean Architecture
+J'ai choisi d'isoler la logique de tarification dans le module `Shared` (`commonMain`).
+* **Avantage :** La règle de calcul (3 ans de permis = Bonus) est codée une seule fois.
+* **Fiabilité :** Si la règle change, elle change pour iOS ET Android en même temps. 0 risque de disparité.
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+### 2. Tests Unitaires (Effectués ✅)
+La logique métier est couverte par des tests unitaires stricts (voir `CalculatePremiumUseCaseTest.kt`).
+* Validation du cas "Jeune Conducteur" (< 3 ans).
+* Validation du cas "Expérimenté".
+* Validation des limites (Edge cases).
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## 🤖 Stratégie d'Automatisation (Appium)
+
+Bien que ce POC se concentre sur les Tests Unitaires, voici la stratégie **End-to-End (E2E)** que je mettrais en place avec **Appium** pour l'industrialisation :
+
+### Approche : Page Object Model (POM)
+Pour garantir la maintenabilité des tests UI, j'utiliserais le pattern POM :
+
+1.  **Screen Definition :** Création d'une classe `RiskSimulatorScreen` qui contient les sélecteurs (IDs) des champs :
+    * `input_age` (Accessibility ID)
+    * `input_license_years` (Accessibility ID)
+    * `btn_calculate` (Accessibility ID)
+
+2.  **Scénario de Test (Gherkin / Cucumber style) :**
+    * **GIVEN** l'application est lancée
+    * **WHEN** je saisis "20" dans le champ Âge
+    * **AND** je saisis "1" dans le champ Permis
+    * **AND** je clique sur "Calculer"
+    * **THEN** je vérifie que le texte "Surprime Appliquée" est affiché en orange.
+
+Cette approche permet de séparer la structure de l'interface des scénarios de tests.
+
+---
+
+## 📱 Comment lancer le projet
+
+**Prérequis :** Android Studio (Koala/Ladybug) & Xcode (pour iOS).
+
+1.  Cloner le repo.
+2.  Ouvrir dans Android Studio.
+3.  Lancer `composeApp` sur Android Emulator ou `iosApp` via Xcode.
+
+---
+*Développé par Yahya Bahloul - POC Candidature Incubateur*
